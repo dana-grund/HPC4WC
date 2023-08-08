@@ -3,9 +3,45 @@ implementation of toroidal planetary physics to be used in shallow water model
 cylindrical coordinates with r, theta and z are used, 
 as well as toroidal coordinates with phi and theta, along mayor and minor radii respectively, where phi=0 is the outer equator
 theta is not used for fields that are symmetric about the z axis
+
+function needed for the numerical implementation of the shallow water equations on a toroidal planet:
+setup_toroidal_planet(): returns the constant parameters of the toroidal planet, this can be called once at the start of the simulation (is expensive as there is some integration involved to calculate the gravity field) 
+toroidal_coriolis_acceleration(): returns the coriolis acceleration vector in toroidal coordinates (needs to be called at every timestep as the coriolis acceleration is dependent on the velocity)
+
 """
 
 import numpy as np
+
+
+def setup_toroidal_planet():
+    '''
+    returns the constant parameters of the toroidal planet
+    
+    input parameters:
+
+    returns:
+    phi: toroidal angle, phi=0 is the outer equator
+    g_t_r: gravitational acceleration in the toroidal r direction
+    g_t_phi: gravitational acceleration in the toroidal phi direction
+    '''
+    aspect_ratio = 0.5 # r_minor / r_major
+    r_major = 6_378e3/(1+aspect_ratio) # m (radius of the earth)
+    r_minor = aspect_ratio*r_major
+    g_0 = 9.81 # m/s^2 (gravitational acceleration at the equator)
+    omega = 2*np.pi / 24 / 3600 # 1 rotation per day
+
+    phi = np.linspace(0, 2 * np.pi, 100)
+
+    r, z = toroidal2cylindrical(phi, r_major, r_minor)
+
+    g_r, g_z = toroidal_gravity(r, z, r_major)
+    g_r, g_z = scale_gravity(g_r, g_z, phi, g_0)
+
+    centrifugal_r = centrifugal_acceleration(r, omega)
+
+    g_t_r, g_t_phi = vector_cylindrical2toroidal(phi, g_r+centrifugal_r, g_z)
+
+    return phi, g_t_r, g_t_phi
 
 
 def toroidal_gravity(r, z, r_major, rho=1, grav_const=1, integration_points=100):
