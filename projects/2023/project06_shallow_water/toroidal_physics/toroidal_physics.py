@@ -1,8 +1,5 @@
 """
 implementation of toroidal planetary physics to be used in shallow water model
-cylindrical coordinates with r, theta and z are used, 
-as well as toroidal coordinates with phi and theta, along mayor and minor radii respectively, where phi=0 is the outer equator
-theta is not used for fields that are symmetric about the z axis
 
 the toroidal coordinate system with r, phi and theta is equivalent to the unwrapped & flattened torus (rectangle) with cartesian coordinates z, y and x.
 
@@ -10,6 +7,9 @@ function needed for the numerical implementation of the shallow water equations 
 setup_toroidal_planet(): returns the constant parameters of the toroidal planet, this can be called once at the start of the simulation (is expensive as there is some integration involved to calculate the gravity field) 
 toroidal_coriolis_acceleration(): returns the coriolis acceleration vector in toroidal coordinates (needs to be called at every timestep as the coriolis acceleration is dependent on the velocity)
 
+cylindrical coordinates with r, theta and z are used, 
+as well as toroidal coordinates with phi and theta, along mayor and minor radii respectively, where phi=0 is the outer equator
+theta is not used for fields that are symmetric about the z axis
 """
 
 import numpy as np
