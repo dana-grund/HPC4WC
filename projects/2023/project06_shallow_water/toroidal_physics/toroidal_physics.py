@@ -139,7 +139,7 @@ def centrifugal_acceleration(r, omega):
     return a_r
 
 
-def toroidal_coriolis_acceleration(phi, v_r, v_phi, v_theta, r_major, r_minor, omega):
+def toroidal_coriolis_acceleration(phi, v_r, v_phi, v_theta):
     """
     returns the coriolis acceleration vector in toroidal coordinates
 
@@ -148,15 +148,13 @@ def toroidal_coriolis_acceleration(phi, v_r, v_phi, v_theta, r_major, r_minor, o
     v_r: velocity in the toroidal r direction
     v_phi: velocity in the toroidal phi direction
     v_theta: velocity in the toroidal theta direction
-    r_major: major radius of the torus
-    r_minor: minor radius of the torus
-    omega: angular velocity
 
     returns:
     a_r: acceleration in toroidal the r direction
     a_phi: acceleration in the toroidal phi direction
     a_theta: acceleration in the toroidal theta direction
     """
+    omega = 2*np.pi / 24 / 3600 # 1 rotation per day
 
     a_theta = 2 * omega * (v_phi * np.sin(phi) - v_r * np.cos(phi))
     a_phi = 2 * omega * (-v_theta * np.sin(phi))
