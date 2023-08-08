@@ -15,11 +15,12 @@ theta is not used for fields that are symmetric about the z axis
 import numpy as np
 
 
-def setup_toroidal_planet():
+def setup_toroidal_planet(n_points_phi=100):
     '''
     returns the constant parameters of the toroidal planet
     
     input parameters:
+    n_points_phi: number of points to use in the phi direction
 
     returns:
     phi: toroidal angle, phi=0 is the outer equator
@@ -32,7 +33,7 @@ def setup_toroidal_planet():
     g_0 = 9.81 # m/s^2 (gravitational acceleration at the equator)
     omega = 2*np.pi / 24 / 3600 # 1 rotation per day
 
-    phi = np.linspace(0, 2 * np.pi, 100)
+    phi = np.linspace(0, 2 * np.pi, n_points_phi)
 
     r, z = toroidal2cylindrical(phi, r_major, r_minor)
 
