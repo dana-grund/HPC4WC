@@ -187,6 +187,22 @@ def toroidal2cylindrical(theta, r_major, r_minor, phi=None):
     else:
         return r, z, phi
 
+def toroidal_slice_width(theta, r_major, r_minor):
+    """
+    input parameters:
+    theta: toroidal angle, theta=0 is the outer equator
+    r_major: major radius of the torus
+    r_minor: minor radius of the torus
+
+    returns:
+    width of a toroidal slice at the given theta relative to the width at the equator
+    """
+
+    w_0 = 1
+    w = (r_major + r_minor * np.cos(theta)) / (r_minor + r_major) *w_0
+
+    return w
+
 
 def vector_cylindrical2toroidal(theta, a_r, a_z, a_theta=None):
     """
