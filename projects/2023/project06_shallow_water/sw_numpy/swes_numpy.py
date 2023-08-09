@@ -67,13 +67,12 @@ class Solver:
 
         # Cosine of mid-point values for theta along y
         self.c = np.cos(self.theta)
-        # self.cMidy = np.cos(0.5 * (self.theta[1:-1,1:] + self.theta[1:-1,:-1]))
-        self.cMidy = np.cos(0.5 * (self.theta[1:-1,1:] + self.theta[1:-1,:-1])) *0 +1
+        self.cMidy = np.cos(0.5 * (self.theta[1:-1,1:] + self.theta[1:-1,:-1]))
 
         # Compute $\tan(\theta)$
-        self.tg = np.tan(self.theta[1:-1,1:-1]) * 0 + 1
-        self.tgMidx = np.tan(0.5 * (self.theta[:-1,1:-1] + self.theta[1:,1:-1])) * 0 + 1
-        self.tgMidy = np.tan(0.5 * (self.theta[1:-1,:-1] + self.theta[1:-1,1:])) * 0 + 1
+        self.tg = np.tan(self.theta[1:-1,1:-1])
+        self.tgMidx = np.tan(0.5 * (self.theta[:-1,1:-1] + self.theta[1:,1:-1]))
+        self.tgMidy = np.tan(0.5 * (self.theta[1:-1,:-1] + self.theta[1:-1,1:]))
 
         # --- Set planet's constants --- #
 
@@ -84,8 +83,7 @@ class Solver:
         # Coordinates
         self.x	= self.a * np.cos(self.theta) * self.phi
         self.y	= self.a * self.theta
-        self.y1	= self.a * self.theta
-        # self.y1 = self.a * np.sin(self.theta)
+        self.y1 = self.a * np.sin(self.theta)
 
         # Increments
         self.dx  = self.x[1:,:] - self.x[:-1,:]
@@ -127,8 +125,6 @@ class Solver:
 
         # --- Setup diffusion --- #
         self.diffusion = diffusion
-        # Number of diffusion steps (laplacian operator is applied this number of times)
-        self.diffusionSteps = 5
 
         # Pre-compute coefficients of second-order approximations of first-order derivative
         if (self.diffusion):
@@ -183,8 +179,7 @@ class Solver:
         self.nu				= 5.0e5
 
         # Coriolis parameter
-        # self.f = 2.0 * self.omega * np.sin(self.theta)
-        self.f = 0 * self.omega * np.sin(self.theta)
+        self.f = 2.0 * self.omega * np.sin(self.theta)
 
 
     def setInitialConditions(self):
@@ -252,10 +247,7 @@ class Solver:
             h0 = 2.94e4 / self.g
 
             # Make Coriolis parameter dependent on longitude and latitude
-            # self.f = 2.0 * self.omega * \
-            #          (- np.cos(self.phi) * np.cos(self.theta) * np.sin(alpha) + \
-            #           np.sin(self.theta) * np.cos(alpha))
-            self.f = 0 * self.omega * \
+            self.f = 2.0 * self.omega * \
                      (- np.cos(self.phi) * np.cos(self.theta) * np.sin(alpha) + \
                       np.sin(self.theta) * np.cos(alpha))
 
@@ -340,8 +332,7 @@ class Solver:
 
         # --- Auxiliary variables --- #
 
-        # v1	= v * self.c
-        v1	= v
+        v1	= v * self.c
         hu	= h * u
         hv	= h * v
         hv1 = h * v1
@@ -452,28 +443,26 @@ class Solver:
         # --- Add diffusion --- #
 
         if (self.diffusion):
-            # multiple diffusion steps
-            for i in range(self.diffusionSteps):
-                # Extend fluid height
-                hext = np.concatenate((h[-4:-3,:], h, h[3:4,:]), axis = 0)
-                hext = np.concatenate((hext[:,0:1], hext, hext[:,-1:]), axis = 1)
+            # Extend fluid height
+            hext = np.concatenate((h[-4:-3,:], h, h[3:4,:]), axis = 0)
+            hext = np.concatenate((hext[:,0:1], hext, hext[:,-1:]), axis = 1)
 
-                # Add the Laplacian
-                hnew += self.dt * self.nu * self.computeLaplacian(hext)
+            # Add the Laplacian
+            hnew += self.dt * self.nu * self.computeLaplacian(hext)
 
-                # Extend longitudinal velocity
-                uext = np.concatenate((u[-4:-3,:], u, u[3:4,:]), axis = 0)
-                uext = np.concatenate((uext[:,0:1], uext, uext[:,-1:]), axis = 1)
+            # Extend longitudinal velocity
+            uext = np.concatenate((u[-4:-3,:], u, u[3:4,:]), axis = 0)
+            uext = np.concatenate((uext[:,0:1], uext, uext[:,-1:]), axis = 1)
 
-                # Add the Laplacian
-                unew += self.dt * self.nu * self.computeLaplacian(uext)
+            # Add the Laplacian
+            unew += self.dt * self.nu * self.computeLaplacian(uext)
 
-                # Extend fluid height
-                vext = np.concatenate((v[-4:-3,:], v, v[3:4,:]), axis = 0)
-                vext = np.concatenate((vext[:,0:1], vext, vext[:,-1:]), axis = 1)
+            # Extend fluid height
+            vext = np.concatenate((v[-4:-3,:], v, v[3:4,:]), axis = 0)
+            vext = np.concatenate((vext[:,0:1], vext, vext[:,-1:]), axis = 1)
 
-                # Add the Laplacian
-                vnew += self.dt * self.nu * self.computeLaplacian(vext)
+            # Add the Laplacian
+            vnew += self.dt * self.nu * self.computeLaplacian(vext)
 
         return hnew, unew, vnew
 
