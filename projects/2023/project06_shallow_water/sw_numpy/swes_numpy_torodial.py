@@ -518,7 +518,8 @@ class Solver:
         ] * (hv1[1:-1, 1:] - hv1[1:-1, :-1])
 
         # Mid-point value for g along y
-        gravMidy = 0.5 * (self.g_torus_r[:, 1:] + self.g_torus_r[:, :-1])
+        grav_r_Midy = 0.5 * (self.g_torus_r[:, 1:] + self.g_torus_r[:, :-1])
+        grav_theta_Midy = 0.5 * (self.g_torus_theta[:, 1:] + self.g_torus_theta[:, :-1])
 
         # Mid-point value for hu along x
         Ux = hu * u + 0.5 * self.g_torus_r * h * h
@@ -627,7 +628,7 @@ class Solver:
         VxMid = np.where(hMidx > 0.0, hvMidx * huMidx / hMidx, 0.0)
 
         Vy1Mid = np.where(hMidy > 0.0, hvMidy * hvMidy / hMidy * self.cMidy, 0.0)
-        Vy2Mid = 0.5 * gravMidy[1:-1, :] * hMidy * hMidy
+        Vy2Mid = 0.5 * grav_r_Midy[1:-1, :] * hMidy * hMidy + grav_theta_Midy[1:-1, :] * hMidy
         hvnew = (
             hv[1:-1, 1:-1]
             - self.dt / self.dxc * (VxMid[1:, :] - VxMid[:-1, :])
