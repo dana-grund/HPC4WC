@@ -106,7 +106,10 @@ def scale_gravity(a_r, a_z, theta, g_0):
     g_0 : gravitational acceleration at the equator
     """
     # index where theta = 0
-    theta_0 = np.where(theta == 0)
+    if theta.ndim == 1:
+        theta_0 = np.argmin(np.abs(theta))
+    elif theta.ndim == 2:
+        theta_0 = np.argmin(np.abs(theta[:,0]))
     a_equ = np.sqrt(np.square(a_r[theta_0]) + np.square(a_z[theta_0]))
     a_r = a_r * g_0 / a_equ
     a_z = a_z * g_0 / a_equ

@@ -90,8 +90,12 @@ class Solver:
             self.r_minor + self.r_major
         )
 
-        self.cMidy = (self.r_major + self.r_minor * np.cos(0.5 * (self.theta[1:-1,1:] + self.theta[1:-1,:-1]))) / (self.r_minor + self.r_major)
-        #self.cMidy = np.ones_like(np.cos(0.5 * (self.theta[1:-1,1:] + self.theta[1:-1,:-1])))
+        self.cMidy = (
+            self.r_major
+            + self.r_minor
+            * np.cos(0.5 * (self.theta[1:-1, 1:] + self.theta[1:-1, :-1]))
+        ) / (self.r_minor + self.r_major)
+        # self.cMidy = np.ones_like(np.cos(0.5 * (self.theta[1:-1,1:] + self.theta[1:-1,:-1])))
 
         # Compute $\tan(\theta)$
         self.tg = np.zeros_like(np.tan(self.theta[1:-1, 1:-1]))
@@ -109,8 +113,11 @@ class Solver:
         self.y = self.r_minor * self.theta
         # self.y1 = self.a * self.theta #np.sin(self.theta)
         # toroidal formulation of the shape factor
-        self.y1 = ((self.r_major * self.r_minor * self.theta) + self.r_minor * np.sin(self.theta)) / (self.r_minor + self.r_major)
-        #self.y1 = self.y * (self.r_major +self.r_minor * np.sin(self.theta)) / (self.r_minor + self.r_major)
+        self.y1 = (
+            (self.r_major * self.r_minor * self.theta)
+            + self.r_minor * np.sin(self.theta)
+        ) / (self.r_minor + self.r_major)
+        # self.y1 = self.y * (self.r_major +self.r_minor * np.sin(self.theta)) / (self.r_minor + self.r_major)
 
         # Increments
         self.dx = self.x[1:, :] - self.x[:-1, :]
@@ -238,13 +245,16 @@ class Solver:
         self.nu = 5.0e5
 
         # torus
-        self.aspect_ratio = 0.95
+        self.aspect_ratio = 0.5
         self.r_major = self.a / (1 + self.aspect_ratio)
         self.r_minor = self.aspect_ratio * self.r_major
         self.g_0 = self.g
-        self.g_torus_r, self.g_torus_theta = tp.toroidal_gravity(
+        self.g_torus_r, self.g_torus_theta = tp.setup_toroidal_planet(
             self.theta, self.r_major, self.r_minor, self.g_0, self.omega
         )
+        # invert g_torus_r as it is implemented as -g
+        self.g_torus_r = -self.g_torus_r
+
         # return to constant gravity for testing
         # self.g_torus_r = 0 * self.g_torus_r + self.g
 
@@ -399,11 +409,16 @@ class Solver:
             v = np.zeros_like(self.phi)
 
         # ---- IC 3 stationary test case --- #
-        # ---- no wind & flat  --- #
+        # ---- like ic 2 but with added noise  --- #
         elif self.IC == 3:
             h = 5e4 * np.ones_like(self.phi)
-            u = np.zeros_like(self.phi)
+            u = 10 * np.ones_like(self.phi)
             v = np.zeros_like(self.phi)
+
+            # add noise
+            h += 1e3 * np.random.rand(*h.shape)
+            u += 1e-1 * np.random.rand(*u.shape)
+            v += 1e-1 * np.random.rand(*v.shape)
 
         self.h = h
         self.u = u
@@ -576,8 +591,8 @@ class Solver:
         # Update longitudinal moment
         UxMid = np.where(
             hMidx > 0.0,
-            huMidx * huMidx / hMidx + 0.5 * self.g_torus_r[1:,1:-1] * hMidx * hMidx,
-            0.5 * self.g_torus_r[1:,1:-1] * hMidx * hMidx,
+            huMidx * huMidx / hMidx + 0.5 * self.g_torus_r[1:, 1:-1] * hMidx * hMidx,
+            0.5 * self.g_torus_r[1:, 1:-1] * hMidx * hMidx,
         )
 
         UyMid = np.where(hMidy > 0.0, hvMidy * self.cMidy * huMidy / hMidy, 0.0)
@@ -601,7 +616,7 @@ class Solver:
             * 0.25
             * (hvMidx[:-1, :] + hvMidx[1:, :] + hvMidy[:, :-1] + hvMidy[:, 1:])
             - self.dt
-            * self.g_torus_r[1:-1,1:-1]
+            * self.g_torus_r[1:-1, 1:-1]
             * 0.25
             * (hMidx[:-1, :] + hMidx[1:, :] + hMidy[:, :-1] + hMidy[:, 1:])
             * (self.hs[2:, 1:-1] - self.hs[:-2, 1:-1])
@@ -612,7 +627,7 @@ class Solver:
         VxMid = np.where(hMidx > 0.0, hvMidx * huMidx / hMidx, 0.0)
 
         Vy1Mid = np.where(hMidy > 0.0, hvMidy * hvMidy / hMidy * self.cMidy, 0.0)
-        Vy2Mid = 0.5 * gravMidy[1:-1,:] * hMidy * hMidy
+        Vy2Mid = 0.5 * gravMidy[1:-1, :] * hMidy * hMidy
         hvnew = (
             hv[1:-1, 1:-1]
             - self.dt / self.dxc * (VxMid[1:, :] - VxMid[:-1, :])
@@ -634,7 +649,7 @@ class Solver:
             * 0.25
             * (huMidx[:-1, :] + huMidx[1:, :] + huMidy[:, :-1] + huMidy[:, 1:])
             - self.dt
-            * self.g_torus_r[1:-1,1:-1]
+            * self.g_torus_r[1:-1, 1:-1]
             * 0.25
             * (hMidx[:-1, :] + hMidx[1:, :] + hMidy[:, :-1] + hMidy[:, 1:])
             * (self.hs[1:-1, 2:] - self.hs[1:-1, :-2])
@@ -732,7 +747,9 @@ class Solver:
                     np.absolute(self.u - np.sqrt(self.g_torus_r * np.absolute(self.h))),
                     np.maximum(
                         np.absolute(self.u),
-                        np.absolute(self.u + np.sqrt(self.g_torus_r * np.absolute(self.h))),
+                        np.absolute(
+                            self.u + np.sqrt(self.g_torus_r * np.absolute(self.h))
+                        ),
                     ),
                 )
             ).max()
@@ -742,7 +759,9 @@ class Solver:
                     np.absolute(self.v - np.sqrt(self.g_torus_r * np.absolute(self.h))),
                     np.maximum(
                         np.absolute(self.v),
-                        np.absolute(self.v + np.sqrt(self.g_torus_r * np.absolute(self.h))),
+                        np.absolute(
+                            self.v + np.sqrt(self.g_torus_r * np.absolute(self.h))
+                        ),
                     ),
                 )
             ).max()
