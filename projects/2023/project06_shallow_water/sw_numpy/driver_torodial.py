@@ -22,11 +22,11 @@ if (version == 'numpy'):
 # Initial condition:
 #	* 0: sixth test case of Williamson's suite
 #	* 1: second test case of Williamson's suite
-IC = 1
+IC = 0
 
 # Simulation length (in days); better to use integer values.
 # Suggested simulation length for Williamson's test cases:
-T = 5
+T = 20
 
 # Grid dimensions
 M = 180
