@@ -69,8 +69,15 @@ class Solver:
         # Build grid
         self.phi, self.theta = np.meshgrid(self.phi1D, self.theta1D, indexing = 'ij')
 
+        # --- Set planet's constants --- #
+        # moved up because it is needed to compute self.c
+        self.setPlanetConstants()
+
         # Cosine of mid-point values for theta along y
-        self.c = np.ones_like(np.cos(self.theta))
+        # self.c = np.ones_like(np.cos(self.theta))
+        # formulation for toroidal shape factor
+        self.c = (self.r_major + self.r_minor * np.cos(self.theta)) / (self.r_minor + self.r_major)
+
         self.cMidy = np.ones_like(np.cos(0.5 * (self.theta[1:-1,1:] + self.theta[1:-1,:-1])))
 
         # Compute $\tan(\theta)$
@@ -78,16 +85,14 @@ class Solver:
         self.tgMidx = np.zeros_like(np.tan(0.5 * (self.theta[:-1,1:-1] + self.theta[1:,1:-1])))
         self.tgMidy = np.zeros_like(np.tan(0.5 * (self.theta[1:-1,:-1] + self.theta[1:-1,1:])))
 
-        # --- Set planet's constants --- #
-
-        self.setPlanetConstants()
-
         # --- Cartesian coordinates and increments --- #
 
         # Coordinates
         self.x	= (self.a*10 + self.a * np.cos(self.theta)) * self.phi
         self.y	= self.a * self.theta
-        self.y1 = self.a * self.theta #np.sin(self.theta)
+        # self.y1 = self.a * self.theta #np.sin(self.theta)
+        # toroidal formulation of the shape factor
+        self.y1 =  (self.r_major + self.r_minor * np.sin(self.theta)) / (self.r_minor + self.r_major)
 
         # Increments
         self.dx  = self.x[1:,:] - self.x[:-1,:]
@@ -169,6 +174,13 @@ class Solver:
         :attribute	nu:				viscosity	[m2/s]
         :attribute	f:				Coriolis parameter	[Hz]
 
+        Set constants for the torus
+
+        :attribute	aspect_ratio:	aspect ratio of the torus
+        :attribute	r_major:		major radius of the torus [m]
+        :attribute	r_minor:		minor radius of the torus [m]
+        :attribute	g_0:			gravitational acceleration at the equator [m/s^2]
+
         :param:
 
         :return:
@@ -181,6 +193,12 @@ class Solver:
         self.omega			= 7.292e-5
         self.scaleHeight	= 8.0e3
         self.nu				= 5.0e5
+
+        # torus
+        self.aspect_ratio = 0.5
+        self.r_major = self.a / (1 + self.aspect_ratio)
+        self.r_minor = self.aspect_ratio * self.r_major
+        self.g_0 = self.g
 
         # Coriolis parameter
         self.f = 2.0 * self.omega * np.sin(self.theta)

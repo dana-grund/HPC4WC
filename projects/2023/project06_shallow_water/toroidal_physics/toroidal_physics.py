@@ -16,9 +16,9 @@ import numpy as np
 
 
 def setup_toroidal_planet(n_points_theta=100):
-    '''
+    """
     returns the constant parameters of the toroidal planet
-    
+
     input parameters:
     n_points_theta: number of points to use in the theta direction
 
@@ -26,12 +26,12 @@ def setup_toroidal_planet(n_points_theta=100):
     theta: toroidal angle, theta=0 is the outer equator
     g_t_r: gravitational acceleration in the toroidal r direction
     g_t_theta: gravitational acceleration in the toroidal theta direction
-    '''
-    aspect_ratio = 0.5 # r_minor / r_major
-    r_major = 6_378e3/(1+aspect_ratio) # m (radius of the earth)
-    r_minor = aspect_ratio*r_major
-    g_0 = 9.81 # m/s^2 (gravitational acceleration at the equator)
-    omega = 2*np.pi / 24 / 3600 # 1 rotation per day
+    """
+    aspect_ratio = 0.5  # r_minor / r_major
+    r_major = 6_378e3 / (1 + aspect_ratio)  # m (radius of the earth)
+    r_minor = aspect_ratio * r_major
+    g_0 = 9.81  # m/s^2 (gravitational acceleration at the equator)
+    omega = 2 * np.pi / 24 / 3600  # 1 rotation per day
 
     theta = np.linspace(0, 2 * np.pi, n_points_theta)
 
@@ -42,7 +42,7 @@ def setup_toroidal_planet(n_points_theta=100):
 
     centrifugal_r = centrifugal_acceleration(r, omega)
 
-    g_t_r, g_t_theta = vector_cylindrical2toroidal(theta, g_r+centrifugal_r, g_z)
+    g_t_r, g_t_theta = vector_cylindrical2toroidal(theta, g_r + centrifugal_r, g_z)
 
     return theta, g_t_r, g_t_theta
 
@@ -155,7 +155,7 @@ def toroidal_coriolis_acceleration(theta, v_r, v_theta, v_phi):
     a_theta: acceleration in the toroidal theta direction
     a_phi: acceleration in the toroidal phi direction
     """
-    omega = 2*np.pi / 24 / 3600 # 1 rotation per day
+    omega = 2 * np.pi / 24 / 3600  # 1 rotation per day
 
     a_phi = 2 * omega * (v_theta * np.sin(theta) - v_r * np.cos(theta))
     a_theta = 2 * omega * (-v_phi * np.sin(theta))
@@ -187,6 +187,7 @@ def toroidal2cylindrical(theta, r_major, r_minor, phi=None):
     else:
         return r, z, phi
 
+
 def toroidal_slice_width(theta, r_major, r_minor):
     """
     input parameters:
@@ -199,7 +200,7 @@ def toroidal_slice_width(theta, r_major, r_minor):
     """
 
     w_0 = 1
-    w = (r_major + r_minor * np.cos(theta)) / (r_minor + r_major) *w_0
+    w = (r_major + r_minor * np.cos(theta)) / (r_minor + r_major) * w_0
 
     return w
 
