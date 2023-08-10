@@ -3,10 +3,6 @@ implementation of toroidal planetary physics to be used in shallow water model
 
 the toroidal coordinate system with r, theta and phi is equivalent to the unwrapped & flattened torus (rectangle) with cartesian coordinates z, y and x.
 
-function needed for the numerical implementation of the shallow water equations on a toroidal planet:
-setup_toroidal_planet(): returns the constant parameters of the toroidal planet, this can be called once at the start of the simulation (is expensive as there is some integration involved to calculate the gravity field) 
-toroidal_coriolis_acceleration(): returns the coriolis acceleration vector in toroidal coordinates (needs to be called at every timestep as the coriolis acceleration is dependent on the velocity)
-
 cylindrical coordinates with r, theta and z are used, 
 as well as toroidal coordinates with theta and theta, along mayor and minor radii respectively, where theta=0 is the outer equator
 theta is not used for fields that are symmetric about the z axis
@@ -15,25 +11,21 @@ theta is not used for fields that are symmetric about the z axis
 import numpy as np
 
 
-def setup_toroidal_planet(n_points_theta=100):
+def setup_toroidal_planet(theta, r_major, r_minor, g_0, omega):
     """
     returns the constant parameters of the toroidal planet
 
     input parameters:
-    n_points_theta: number of points to use in the theta direction
+    theta : angle of the toroidal coordinate system
+    r_major : major radius of the torus
+    r_minor : minor radius of the torus
+    g_0 : gravitational acceleration at the equator
+    omega : angular velocity of the planet
 
     returns:
-    theta: toroidal angle, theta=0 is the outer equator
     g_t_r: gravitational acceleration in the toroidal r direction
     g_t_theta: gravitational acceleration in the toroidal theta direction
     """
-    aspect_ratio = 0.5  # r_minor / r_major
-    r_major = 6_378e3 / (1 + aspect_ratio)  # m (radius of the earth)
-    r_minor = aspect_ratio * r_major
-    g_0 = 9.81  # m/s^2 (gravitational acceleration at the equator)
-    omega = 2 * np.pi / 24 / 3600  # 1 rotation per day
-
-    theta = np.linspace(0, 2 * np.pi, n_points_theta)
 
     r, z = toroidal2cylindrical(theta, r_major, r_minor)
 
@@ -44,7 +36,7 @@ def setup_toroidal_planet(n_points_theta=100):
 
     g_t_r, g_t_theta = vector_cylindrical2toroidal(theta, g_r + centrifugal_r, g_z)
 
-    return theta, g_t_r, g_t_theta
+    return g_t_r, g_t_theta
 
 
 def toroidal_gravity(r, z, r_major, rho=1, grav_const=1, integration_points=100):

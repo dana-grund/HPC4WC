@@ -130,6 +130,6 @@ dmypy.json
 
 # gt4py
 .gt_cache/
-projects/2023/project06_shallow_water/data/swes-numpy-0-M180-N90-T5-1-h
-projects/2023/project06_shallow_water/data/swes-numpy-0-M180-N90-T5-1-u
-projects/2023/project06_shallow_water/data/swes-numpy-0-M180-N90-T5-1-v
+
+# data
+projects/2023/project06_shallow_water/data/
