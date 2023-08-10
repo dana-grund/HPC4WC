@@ -518,7 +518,8 @@ class Solver:
         ] * (hv1[1:-1, 1:] - hv1[1:-1, :-1])
 
         # Mid-point value for g along y
-        gravMidy = 0.5 * (self.g_torus_r[:, 1:] + self.g_torus_r[:, :-1])
+        grav_r_Midy = 0.5 * (self.g_torus_r[:, 1:] + self.g_torus_r[:, :-1])
+        grav_theta_Midy = 0.5 * (self.g_torus_theta[:, 1:] + self.g_torus_theta[:, :-1])
 
         # Mid-point value for hu along x
         Ux = hu * u + 0.5 * self.g_torus_r * h * h
@@ -627,7 +628,7 @@ class Solver:
         VxMid = np.where(hMidx > 0.0, hvMidx * huMidx / hMidx, 0.0)
 
         Vy1Mid = np.where(hMidy > 0.0, hvMidy * hvMidy / hMidy * self.cMidy, 0.0)
-        Vy2Mid = 0.5 * gravMidy[1:-1, :] * hMidy * hMidy
+        Vy2Mid = 0.5 * grav_r_Midy[1:-1, :] * hMidy * hMidy + grav_theta_Midy[1:-1, :] * hMidy
         hvnew = (
             hv[1:-1, 1:-1]
             - self.dt / self.dxc * (VxMid[1:, :] - VxMid[:-1, :])
@@ -718,11 +719,11 @@ class Solver:
                 "Time = %6.2f hours (max %i); max(|u|) = %8.8f"
                 % (0.0, int(self.T / 3600.0), umax)
             )
-            print(
-                "check y-dir periodicity:",
-                np.all(self.h[1:-1, 0] == self.h[1:-1, -3]),
-                np.all(self.h[1:-1, -1] == self.h[1:-1, 2]),
-            )
+            # print(
+            #     "check y-dir periodicity:",
+            #     np.all(self.h[1:-1, 0] == self.h[1:-1, -3]),
+            #     np.all(self.h[1:-1, -1] == self.h[1:-1, 2]),
+            # )
         # Save
         if save > 0:
             tsave = np.array([[0.0]])
@@ -812,22 +813,22 @@ class Solver:
                     "Time = %6.2f hours (max %i); max(|u|) = %16.16f"
                     % (t / 3600.0, int(self.T / 3600.0), umax)
                 )
-                print(
-                    "check y-dir periodicity:",
-                    np.all(self.h[1:-1, 0] == self.h[1:-1, -3]),
-                    np.all(self.h[1:-1, -1] == self.h[1:-1, 2]),
-                )
-                print(
-                    "check y-dir:",
-                    np.all(np.abs(self.u[1:-1, 1] - self.u[1:-1, -2]) < 1e-9),
-                    self.u[10, 1],
-                    self.u[10, -2],
-                )
-                print(
-                    "check x-dir periodicity:",
-                    np.all(self.h[0, 1:-1] == self.h[-3, 1:-1]),
-                    np.all(self.h[-1, 1:-1] == self.h[2, 1:-1]),
-                )
+                # print(
+                #     "check y-dir periodicity:",
+                #     np.all(self.h[1:-1, 0] == self.h[1:-1, -3]),
+                #     np.all(self.h[1:-1, -1] == self.h[1:-1, 2]),
+                # )
+                # print(
+                #     "check y-dir:",
+                #     np.all(np.abs(self.u[1:-1, 1] - self.u[1:-1, -2]) < 1e-9),
+                #     self.u[10, 1],
+                #     self.u[10, -2],
+                # )
+                # print(
+                #     "check x-dir periodicity:",
+                #     np.all(self.h[0, 1:-1] == self.h[-3, 1:-1]),
+                #     np.all(self.h[-1, 1:-1] == self.h[2, 1:-1]),
+                # )
 
             if save > 0 and (n % save == 0):
                 tsave = np.concatenate((tsave, np.array([[t]])), axis=0)
