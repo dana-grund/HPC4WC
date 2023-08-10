@@ -71,7 +71,7 @@ class Solver:
         self.theta1D = np.linspace(
             -self.dtheta / 2.0 - math.pi, math.pi + self.dtheta / 2.0, self.N + 2
         )
-        print(self.theta1D / math.pi * 180.0)
+        # print(self.theta1D / math.pi * 180.0)
         # self.theta_range = 85.0
         # self.dtheta = (2*self.theta_range/180.0) * math.pi / (self.N - 1)
         # self.theta1D = np.linspace(-self.theta_range/180.0*math.pi, self.theta_range/180.0*math.pi, self.N)
@@ -254,14 +254,14 @@ class Solver:
         )
         # invert g_torus_r as it is implemented as -g
         self.g_torus_r = -self.g_torus_r
-        print('g',self.g_torus_r.min(),self.g_torus_r.max())
-        print('g',self.g_torus_r[0,:])
+        # print('g',self.g_torus_r.min(),self.g_torus_r.max())
+        # print('g',self.g_torus_r[0,:])
         # return to constant gravity for testing
         # self.g_torus_r = 0 * self.g_torus_r + self.g
 
         # Coriolis parameter
         # self.f = 2.0 * self.omega * np.sin(self.theta)
-        self.f = 0 * self.omega * np.sin(self.theta)
+        self.f = 2.0 * self.omega * np.sin(self.theta)
 
     def setInitialConditions(self):
         """
