@@ -26,7 +26,7 @@ IC = 0
 
 # Simulation length (in days); better to use integer values.
 # Suggested simulation length for Williamson's test cases:
-T = 15
+T = 5
 
 # Grid dimensions
 M = 180
@@ -56,8 +56,17 @@ else:
 # --- STORE THE SOLUTION --- #
 
 if (save > 0):
-    GRIDTOOLS_ROOT = os.environ.get('GRIDTOOLS_ROOT')
-    baseName = GRIDTOOLS_ROOT + '/data/swes-%s-%s-M%i-N%i-T%i-%i-' % (version, str(IC), M, N, T, diffusion)
+    # try to get gridtools_root (does not work on all systems)
+    root = os.environ.get('GRIDTOOLS_ROOT')
+    
+    # if it does not work, set root to parent directory of script location
+    if root is None:
+        root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        print('Warning: GRIDTOOLS_ROOT not set, using %s as root directory for data output' % root)
+        # make sure the data directory exists
+        os.makedirs(root + '/data',exist_ok=True)
+
+    baseName = root + '/data/swes-%s-%s-M%i-N%i-T%i-%i-' % (version, str(IC), M, N, T, diffusion)
 
     # Save h
     with open(baseName + 'h', 'wb') as f:
