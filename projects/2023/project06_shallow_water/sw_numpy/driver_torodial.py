@@ -43,7 +43,7 @@ diffusion = True
 #	* verbose: 	specify number of iterations between two consecutive output
 #	* save:		specify number of iterations between two consecutive stored timesteps
 verbose = 100#500
-save = 10#500
+save = 100#500
 
 # --- RUN THE SOLVER --- #
 
