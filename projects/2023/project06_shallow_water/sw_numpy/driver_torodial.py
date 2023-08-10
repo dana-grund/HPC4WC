@@ -26,7 +26,7 @@ IC = 0
 
 # Simulation length (in days); better to use integer values.
 # Suggested simulation length for Williamson's test cases:
-T = 1
+T = 5
 
 # Grid dimensions
 M = 180
@@ -43,7 +43,7 @@ diffusion = True
 #	* verbose: 	specify number of iterations between two consecutive output
 #	* save:		specify number of iterations between two consecutive stored timesteps
 verbose = 100#500
-save = 100#500
+save = 10#500
 
 # --- RUN THE SOLVER --- #
 
