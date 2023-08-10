@@ -88,11 +88,11 @@ class Solver:
         # --- Cartesian coordinates and increments --- #
 
         # Coordinates
-        self.x	= (self.a*10 + self.a * np.cos(self.theta)) * self.phi
-        self.y	= self.a * self.theta
+        self.x	= (self.r_major + self.r_minor * np.cos(self.theta)) * self.phi
+        self.y	= self.r_minor * self.theta
         # self.y1 = self.a * self.theta #np.sin(self.theta)
         # toroidal formulation of the shape factor
-        self.y1 =  (self.r_major + self.r_minor * np.sin(self.theta)) / (self.r_minor + self.r_major)
+        self.y1 = self.y * (self.r_major +self.r_minor * np.sin(self.theta)) / (self.r_minor + self.r_major)
 
         # Increments
         self.dx  = self.x[1:,:] - self.x[:-1,:]
@@ -195,13 +195,14 @@ class Solver:
         self.nu				= 5.0e5
 
         # torus
-        self.aspect_ratio = 0.5
+        self.aspect_ratio = 0.2
         self.r_major = self.a / (1 + self.aspect_ratio)
         self.r_minor = self.aspect_ratio * self.r_major
         self.g_0 = self.g
 
         # Coriolis parameter
-        self.f = 2.0 * self.omega * np.sin(self.theta)
+        # self.f = 2.0 * self.omega * np.sin(self.theta)
+        self.f = 0 * self.omega * np.sin(self.theta)
 
 
     def setInitialConditions(self):
