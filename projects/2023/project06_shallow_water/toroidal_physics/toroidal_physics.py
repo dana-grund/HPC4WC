@@ -28,14 +28,19 @@ def setup_toroidal_planet(theta, r_major, r_minor, g_0, omega):
     """
 
     r, z = toroidal2cylindrical(theta, r_major, r_minor)
-
+    print('r',r[0,:])
+    print('z',z[0,:])
     g_r, g_z = toroidal_gravity(r, z, r_major)
+    print("g_r",g_r[0,:])
+    print("g_z",g_z[0,:])
     g_r, g_z = scale_gravity(g_r, g_z, theta, g_0)
-
+    print("g_r",g_r[0,:])
+    print("g_z",g_z[0,:])
     centrifugal_r = centrifugal_acceleration(r, omega)
-
+    print("cf_r",centrifugal_r[0,:])
     g_t_r, g_t_theta = vector_cylindrical2toroidal(theta, g_r + centrifugal_r, g_z)
-
+    print("g_t_r",g_t_r[0,:])
+    print("g_t_t",g_t_theta[0,:])
     return g_t_r, g_t_theta
 
 
@@ -108,9 +113,12 @@ def scale_gravity(a_r, a_z, theta, g_0):
     # index where theta = 0
     if theta.ndim == 1:
         theta_0 = np.argmin(np.abs(theta))
+        print('1d:',theta[theta_0])
+        a_equ = np.sqrt(np.square(a_r[theta_0]) + np.square(a_z[theta_0]))
     elif theta.ndim == 2:
-        theta_0 = np.argmin(np.abs(theta[:,0]))
-    a_equ = np.sqrt(np.square(a_r[theta_0]) + np.square(a_z[theta_0]))
+        theta_0 = np.argmin(np.abs(theta[0,:]))
+        print('2d:',theta[0,theta_0])
+        a_equ = np.sqrt(np.square(a_r[0,theta_0]) + np.square(a_z[0,theta_0]))
     a_r = a_r * g_0 / a_equ
     a_z = a_z * g_0 / a_equ
 

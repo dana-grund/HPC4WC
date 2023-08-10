@@ -240,7 +240,7 @@ class Solver:
         self.g = 9.80616
         self.rho = 1.2
         self.a = 6.37122e6
-        self.omega = 7.292e-5
+        self.omega = 0.0#7.292e-5
         self.scaleHeight = 8.0e3
         self.nu = 5.0e5
 
@@ -254,7 +254,8 @@ class Solver:
         )
         # invert g_torus_r as it is implemented as -g
         self.g_torus_r = -self.g_torus_r
-
+        print('g',self.g_torus_r.min(),self.g_torus_r.max())
+        print('g',self.g_torus_r[0,:])
         # return to constant gravity for testing
         # self.g_torus_r = 0 * self.g_torus_r + self.g
 
@@ -507,7 +508,6 @@ class Solver:
         hv = h * v
         hv1 = h * v1
         # --- Compute mid-point values after half timestep --- #
-
         # Mid-point value for h along x
         hMidx = 0.5 * (h[1:, 1:-1] + h[:-1, 1:-1]) - 0.5 * self.dt / self.dx[
             :, 1:-1
@@ -787,32 +787,22 @@ class Solver:
                 (hnew[-2:-1, :], hnew, hnew[1:2, :]), axis=0
             )
             # --- TO-DO: change the boundary also to periodic ---
-            self.h[1:-1, :] = np.concatenate(
-                (hnew[:, -2:-1], hnew, hnew[:, 1:2]), axis=1
-            )
-            # self.h[:,0]  = self.h[:,1]
-            # self.h[:,-1] = self.h[:,-2]
+            self.h[:,0]  = self.h[:,-2]
+            self.h[:,-1] = self.h[:,1]
 
             self.u[:, 1:-1] = np.concatenate(
                 (unew[-2:-1, :], unew, unew[1:2, :]), axis=0
             )
             # --- TO-DO: change the boundary also to periodic ---
-            self.u[1:-1, :] = np.concatenate(
-                (unew[:, -2:-1], unew, unew[:, 1:2]), axis=1
-            )
-            # self.u[:,0]  = self.u[:,1]
-            # self.u[:,-1] = self.u[:,-2]
+            self.u[:,0]  = self.u[:,-2]
+            self.u[:,-1] = self.u[:,1]
 
             self.v[:, 1:-1] = np.concatenate(
                 (vnew[-2:-1, :], vnew, vnew[1:2, :]), axis=0
             )
             # --- TO-DO: change the boundary also to periodic ---
-            self.v[1:-1, :] = np.concatenate(
-                (vnew[:, -2:-1], vnew, vnew[:, 1:2]), axis=1
-            )
-            # self.v[:,0]  = self.v[:,1]
-            # self.v[:,-1] = self.v[:,-2]
-
+            self.v[:,0]  = self.v[:,-2]
+            self.v[:,-1] = self.v[:,1]
             # --- Print and save --- #
 
             if verbose > 0 and (n % verbose == 0):
