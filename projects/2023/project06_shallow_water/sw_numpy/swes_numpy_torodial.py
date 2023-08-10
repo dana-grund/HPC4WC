@@ -78,7 +78,8 @@ class Solver:
         # formulation for toroidal shape factor
         self.c = (self.r_major + self.r_minor * np.cos(self.theta)) / (self.r_minor + self.r_major)
 
-        self.cMidy = np.ones_like(np.cos(0.5 * (self.theta[1:-1,1:] + self.theta[1:-1,:-1])))
+        self.cMidy = (self.r_major + self.r_minor * np.cos(0.5 * (self.theta[1:-1,1:] + self.theta[1:-1,:-1]))) / (self.r_minor + self.r_major)
+        #self.cMidy = np.ones_like(np.cos(0.5 * (self.theta[1:-1,1:] + self.theta[1:-1,:-1])))
 
         # Compute $\tan(\theta)$
         self.tg = np.zeros_like(np.tan(self.theta[1:-1,1:-1]))
@@ -92,7 +93,8 @@ class Solver:
         self.y	= self.r_minor * self.theta
         # self.y1 = self.a * self.theta #np.sin(self.theta)
         # toroidal formulation of the shape factor
-        self.y1 = self.y * (self.r_major +self.r_minor * np.sin(self.theta)) / (self.r_minor + self.r_major)
+        self.y1 = ((self.r_major * self.r_minor * self.theta) + self.r_minor * np.sin(self.theta)) / (self.r_minor + self.r_major)
+        #self.y1 = self.y * (self.r_major +self.r_minor * np.sin(self.theta)) / (self.r_minor + self.r_major)
 
         # Increments
         self.dx  = self.x[1:,:] - self.x[:-1,:]
@@ -195,7 +197,7 @@ class Solver:
         self.nu				= 5.0e5
 
         # torus
-        self.aspect_ratio = 0.2
+        self.aspect_ratio = 0.95
         self.r_major = self.a / (1 + self.aspect_ratio)
         self.r_minor = self.aspect_ratio * self.r_major
         self.g_0 = self.g

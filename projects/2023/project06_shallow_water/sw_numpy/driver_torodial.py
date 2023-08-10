@@ -26,7 +26,7 @@ IC = 0
 
 # Simulation length (in days); better to use integer values.
 # Suggested simulation length for Williamson's test cases:
-T = 1
+T = 5
 
 # Grid dimensions
 M = 180
