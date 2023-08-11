@@ -275,7 +275,13 @@ class Solver:
 
         :return:
         """
-
+        # equilibrium fluid height on the torus (add the initial fluid height to this)
+        h_equilibrium = (
+            -np.cos(self.theta) * 6_800
+            + np.cos(self.theta * 2) * 3_600
+            - np.cos(self.theta * 3) * 1_400
+            + np.cos(self.theta * 4) * 300
+        )
         # --- IC 0: sixth test case taken from Williamson's suite --- #
         # ---       Rossby-Haurwitz Wave                          --- #
 
@@ -318,6 +324,8 @@ class Solver:
                     + (self.a**2.0) * C * np.cos(2.0 * R * self.phi)
                 )
                 / self.g_torus_r
+                + h0 / 5e4 * h_equilibrium
+                + 300
             )
 
             # Compute initial wind
@@ -375,6 +383,8 @@ class Solver:
                     ** 2.0
                 )
                 / self.g_torus_r
+                + h0 / 5e4 * h_equilibrium
+                + 300
             )
 
             # Compute initial wind
@@ -405,14 +415,16 @@ class Solver:
         # ---- IC 2 stationary test case --- #
         # ---- for an artificial xy-periodic field  --- #
         elif self.IC == 2:
-            h = 5e4 * np.ones_like(self.phi)
+            h0 = 5e4
+            h = h0 * np.ones_like(self.phi) + h0 / 5e4 * h_equilibrium + 300
             u = 10 * np.ones_like(self.phi)
             v = np.zeros_like(self.phi)
 
         # ---- IC 3 stationary test case --- #
         # ---- like ic 2 but with added noise  --- #
         elif self.IC == 3:
-            h = 5e4 * np.ones_like(self.phi)
+            h0 = 5e4
+            h = h0 * np.ones_like(self.phi) + h0 / 5e4 * h_equilibrium + 300
             u = 10 * np.ones_like(self.phi)
             v = np.zeros_like(self.phi)
 
@@ -608,7 +620,7 @@ class Solver:
         UyMid = np.where(
             hMidy > 0.0, hvMidy * self.cMidy * huMidy / hMidy, 0.0
         ) + 2 * self.omega * (
-            uMidy_temp * np.sin(thetaMidy[1:-1,:])
+            uMidy_temp * np.sin(thetaMidy[1:-1, :])
         )  # add coriolis term
         hunew = (
             hu[1:-1, 1:-1]
