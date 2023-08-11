@@ -97,6 +97,11 @@ class Solver:
         ) / (self.r_minor + self.r_major)
         # self.cMidy = np.ones_like(np.cos(0.5 * (self.theta[1:-1,1:] + self.theta[1:-1,:-1])))
 
+        # Compute $\sin(\theta)$
+        self.sg = np.sin(self.theta[1:-1, 1:-1])
+        self.sgMidx = np.sin(0.5 * (self.theta[:-1, 1:-1] + self.theta[1:, 1:-1]))
+        self.sgMidy = np.sin(0.5 * (self.theta[1:-1, :-1] + self.theta[1:-1, 1:]))
+        
         # Compute $\tan(\theta)$
         self.tg = np.zeros_like(np.tan(self.theta[1:-1, 1:-1]))
         self.tgMidx = np.zeros_like(
@@ -237,15 +242,15 @@ class Solver:
         """
 
         # Earth
-        self.g = 9.80616
+        self.g = 9.80616#e-2
         self.rho = 1.2
         self.a = 6.37122e6
-        self.omega = 0.0  # 7.292e-5
+        self.omega = 7.292e-5
         self.scaleHeight = 8.0e3
         self.nu = 5.0e5
 
         # torus
-        self.aspect_ratio = 0.5
+        self.aspect_ratio = 0.1
         self.r_major = self.a / (1 + self.aspect_ratio)
         self.r_minor = self.aspect_ratio * self.r_major
         self.g_0 = self.g
@@ -260,8 +265,8 @@ class Solver:
         # self.g_torus_r = 0 * self.g_torus_r + self.g
 
         # Coriolis parameter
-        # self.f = 2.0 * self.omega * np.sin(self.theta)
-        self.f = 0 * self.omega * np.sin(self.theta)
+        self.f = 2.0 * self.omega * np.sin(self.theta)
+        # self.f = 0 * self.omega * np.sin(self.theta)
 
     def setInitialConditions(self):
         """
@@ -415,11 +420,12 @@ class Solver:
         # ---- IC 2 stationary test case --- #
         # ---- for an artificial xy-periodic field  --- #
         elif self.IC == 2:
-            h0 = 5e4
-            h = h0 * np.ones_like(self.phi) + h0 / 5e4 * h_equilibrium + 300
+            h = 2e5 * np.ones_like(self.phi) 
+            #h0 = 5e4
+            #h = h0 * np.ones_like(self.phi) + h0 / 5e4 * h_equilibrium + 300
             u = 10 * np.ones_like(self.phi)
             v = np.zeros_like(self.phi)
-
+            
         # ---- IC 3 stationary test case --- #
         # ---- like ic 2 but with added noise  --- #
         elif self.IC == 3:
@@ -538,9 +544,9 @@ class Solver:
         # Mid-point value for theta along y
         thetaMidy = 0.5 * (self.theta[:, 1:] + self.theta[:, :-1])
 
-        # Mid-point value for u along y (needed for the Coriolis term)
-        # todo: this is a bad solution but the correct uMidy is not available at the time of computing the Coriolis term for u
-        uMidy_temp = 0.5 * (u[1:-1, 1:] + u[1:-1, :-1])
+        ## Mid-point value for u along y (needed for the Coriolis term)
+        ## todo: this is a bad solution but the correct uMidy is not available at the time of computing the Coriolis term for u
+        ##uMidy_temp = 0.5 * (u[1:-1, 1:] + u[1:-1, :-1])
 
         # Mid-point value for hu along x
         Ux = hu * u + 0.5 * self.g_torus_r * h * h
@@ -551,7 +557,9 @@ class Solver:
             * self.dt
             * (
                 0.5 * (self.f[1:, 1:-1] + self.f[:-1, 1:-1])
-                + 0.5 * (self.u[1:, 1:-1] + self.u[:-1, 1:-1]) * self.tgMidx / self.a
+                + 0.5 * (self.u[1:, 1:-1] + self.u[:-1, 1:-1]) * self.sgMidx / (
+                    self.r_major + self.r_minor * np.cos(0.5*(self.theta[1:, 1:-1] + self.theta[:-1, 1:-1]))
+                )
             )
             * (0.5 * (hv[1:, 1:-1] + hv[:-1, 1:-1]))
         )
@@ -565,7 +573,9 @@ class Solver:
             * self.dt
             * (
                 0.5 * (self.f[1:-1, 1:] + self.f[1:-1, :-1])
-                + 0.5 * (u[1:-1, 1:] + u[1:-1, :-1]) * self.tgMidy / self.a
+                + 0.5 * (u[1:-1, 1:] + u[1:-1, :-1]) * self.sgMidy / (
+                    self.r_major + self.r_minor * np.cos(0.5*(self.theta[1:-1, 1:] + self.theta[1:-1, :-1]))
+                )
             )
             * (0.5 * (hv[1:-1, 1:] + hv[1:-1, :-1]))
         )
@@ -579,7 +589,9 @@ class Solver:
             * self.dt
             * (
                 0.5 * (self.f[1:, 1:-1] + self.f[:-1, 1:-1])
-                + 0.5 * (u[1:, 1:-1] + u[:-1, 1:-1]) * self.tgMidx / self.a
+                + 0.5 * (u[1:, 1:-1] + u[:-1, 1:-1]) * self.sgMidx / (
+                    self.r_major + self.r_minor * np.cos(0.5*(self.theta[1:, 1:-1] + self.theta[:-1, 1:-1]))
+                )
             )
             * (0.5 * (hu[1:, 1:-1] + hu[:-1, 1:-1]))
         )
@@ -594,7 +606,9 @@ class Solver:
             * self.dt
             * (
                 0.5 * (self.f[1:-1, 1:] + self.f[1:-1, :-1])
-                + 0.5 * (u[1:-1, 1:] + u[1:-1, :-1]) * self.tgMidy / self.a
+                + 0.5 * (u[1:-1, 1:] + u[1:-1, :-1]) * self.sgMidy / (
+                    self.r_major + self.r_minor * np.cos(0.5*(self.theta[1:-1, 1:] + self.theta[1:-1, :-1]))
+                )
             )
             * (0.5 * (hu[1:-1, 1:] + hu[1:-1, :-1]))
         )
@@ -619,9 +633,9 @@ class Solver:
 
         UyMid = np.where(
             hMidy > 0.0, hvMidy * self.cMidy * huMidy / hMidy, 0.0
-        ) + 2 * self.omega * (
-            uMidy_temp * np.sin(thetaMidy[1:-1, :])
-        )  # add coriolis term
+        ) #+ 2 * self.omega * (
+        #    uMidy_temp * np.sin(thetaMidy[1:-1,:])
+        #)  # add coriolis term
         hunew = (
             hu[1:-1, 1:-1]
             - self.dt / self.dxc * (UxMid[1:, :] - UxMid[:-1, :])
@@ -636,8 +650,8 @@ class Solver:
                     + huMidy[:, :-1] / hMidy[:, :-1]
                     + huMidy[:, 1:] / hMidy[:, 1:]
                 )
-                * self.tg
-                / self.a
+                * self.sg
+                / (self.r_major + self.r_minor * np.cos(self.theta[1:-1, 1:-1]))
             )
             * 0.25
             * (hvMidx[:-1, :] + hvMidx[1:, :] + hvMidy[:, :-1] + hvMidy[:, 1:])
@@ -653,15 +667,7 @@ class Solver:
         VxMid = np.where(hMidx > 0.0, hvMidx * huMidx / hMidx, 0.0)
 
         Vy1Mid = np.where(hMidy > 0.0, hvMidy * hvMidy / hMidy * self.cMidy, 0.0)
-        Vy2Mid = (
-            0.5 * grav_r_Midy[1:-1, :] * hMidy * hMidy
-            + grav_theta_Midy[1:-1, :] * hMidy  # horizontal gravity
-            + 2
-            * self.omega
-            * (
-                -UyMid * np.sin(thetaMidy[1:-1, :])
-            )  # Coriolis acceleration in y or theta direction
-        )
+        Vy2Mid = 0.5 * grav_r_Midy[1:-1, :] * hMidy * hMidy #+ grav_theta_Midy[1:-1, :] * hMidy
         hvnew = (
             hv[1:-1, 1:-1]
             - self.dt / self.dxc * (VxMid[1:, :] - VxMid[:-1, :])
@@ -677,11 +683,17 @@ class Solver:
                     + huMidy[:, :-1] / hMidy[:, :-1]
                     + huMidy[:, 1:] / hMidy[:, 1:]
                 )
-                * self.tg
-                / self.a
+                * self.sg
+                / (self.r_major + self.r_minor * np.cos(self.theta[1:-1, 1:-1]))
             )
             * 0.25
             * (huMidx[:-1, :] + huMidx[1:, :] + huMidy[:, :-1] + huMidy[:, 1:])
+            ###
+            + self.dt
+            * self.g_torus_theta[1:-1, 1:-1]
+            * 0.25
+            * (hMidx[:-1, :] + hMidx[1:, :] + hMidy[:, :-1] + hMidy[:, 1:])
+            ###
             - self.dt
             * self.g_torus_r[1:-1, 1:-1]
             * 0.25
@@ -689,11 +701,12 @@ class Solver:
             * (self.hs[1:-1, 2:] - self.hs[1:-1, :-2])
             / (self.dy1[1:-1, :-1] + self.dy1[1:-1, 1:])
         )
-
+        #print("max term", self.g_torus_theta.max(),self.dt,hMidx.max())
         # Come back to original variables
         unew = hunew / hnew
         vnew = hvnew / hnew
-
+        #print('u,v',np.absolute(unew).max(),np.absolute(vnew).max())
+        #print('h',h.max())
         # --- Add diffusion --- #
 
         if self.diffusion:
