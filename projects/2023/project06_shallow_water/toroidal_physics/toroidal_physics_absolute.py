@@ -11,7 +11,7 @@ theta is not used for fields that are symmetric about the z axis
 import numpy as np
 
 
-def setup_toroidal_planet(theta, r_major, r_minor, g_0, omega):
+def setup_toroidal_planet(theta, r_major, r_minor, omega, G=6.674e-11, rho_p=5.52e3):
     """
     returns the constant parameters of the toroidal planet
 
@@ -19,8 +19,9 @@ def setup_toroidal_planet(theta, r_major, r_minor, g_0, omega):
     theta : angle of the toroidal coordinate system
     r_major : major radius of the torus
     r_minor : minor radius of the torus
-    g_0 : gravitational acceleration at the equator
     omega : angular velocity of the planet
+    G : gravitational constant 
+    rho_p: density of the planet
 
     returns:
     g_t_r: gravitational acceleration in the toroidal r direction
@@ -28,23 +29,16 @@ def setup_toroidal_planet(theta, r_major, r_minor, g_0, omega):
     """
 
     r, z = toroidal2cylindrical(theta, r_major, r_minor)
-    print('r',r[0,:])
-    print('z',z[0,:])
-    g_r, g_z = toroidal_gravity(r, z, r_major)
-    print("g_r",g_r[0,:])
-    print("g_z",g_z[0,:])
-    g_r, g_z = scale_gravity(g_r, g_z, theta, g_0)
-    print("g_r",g_r[0,:])
-    print("g_z",g_z[0,:])
+    g_r, g_z = toroidal_gravity(r, z, r_major, r_minor,
+                                rho=rho_p, grav_const=G
+               )
+    #g_r, g_z = scale_gravity(g_r, g_z, theta, g_0)
     centrifugal_r = centrifugal_acceleration(r, omega)
-    print("cf_r",centrifugal_r[0,:])
     g_t_r, g_t_theta = vector_cylindrical2toroidal(theta, g_r + centrifugal_r, g_z)
-    print("g_t_r",g_t_r[0,:])
-    print("g_t_t",g_t_theta[0,:])
     return g_t_r, g_t_theta
 
 
-def toroidal_gravity(r, z, r_major, rho=1, grav_const=1, integration_points=100, potential=False):
+def toroidal_gravity(r, z, r_major, r_minor, rho=5.52e3, grav_const=6.674e-11, integration_points=200, potential=False):
     """
     returns the gravitational acceleration vector in cylindrical coordinates
     works by approximating the torus as a series of point masses along a circle and integrating over them
@@ -52,8 +46,9 @@ def toroidal_gravity(r, z, r_major, rho=1, grav_const=1, integration_points=100,
     input parameters:
     r : cylindrical radius
     z : height above the equatorial plane
-    rho : mass density of the planet
-    r_major : major radius of the torus
+    rho : mass density of the planet (default to Earth's)
+    r_major : major radius of the torus 
+    r_minor : minor radius of the torus
     grav_const : gravitational constant
     integration_points : number of integration points to use in the numerical integration of the gravitational acceleration
     potential: switch to output gravitational potential
@@ -65,10 +60,8 @@ def toroidal_gravity(r, z, r_major, rho=1, grav_const=1, integration_points=100,
     v_g : gravitational potential of the input locations
     
     """
-
-    rho = 1
     d_theta = np.pi / integration_points
-    point_mass = rho * r_major * d_theta
+    point_mass = rho * r_major * d_theta * np.pi * np.square(r_minor)
 
     a_r = 0
     a_z = 0
@@ -214,12 +207,10 @@ def toroidal3d2cylindrical(theta, r_major, r_minor, phi=None):
     phi: cylindrical angle (if phi is given)
     """
     rhead,thetahead = np.meshgrid(r_minor,theta,indexing='ij')
-    #print("rhead",rhead.shape,rhead[:,0])
-    #print("thead",thetahead.shape,thetahead[:,0])
 
     r = r_major + rhead * np.cos(thetahead)
     z = rhead * np.sin(thetahead)
-
+ 
     if phi is None:
         return r, z
     else:
