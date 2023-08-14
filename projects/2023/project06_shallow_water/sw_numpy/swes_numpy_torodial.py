@@ -281,12 +281,7 @@ class Solver:
         :return:
         """
         # equilibrium fluid height on the torus (add the initial fluid height to this)
-        h_equilibrium = (
-            -np.cos(self.theta) * 6_800
-            + np.cos(self.theta * 2) * 3_600
-            - np.cos(self.theta * 3) * 1_400
-            + np.cos(self.theta * 4) * 300
-        )
+        h_equilibrium = -0.6*np.cos(self.theta)
         # --- IC 0: sixth test case taken from Williamson's suite --- #
         # ---       Rossby-Haurwitz Wave                          --- #
 
@@ -294,7 +289,8 @@ class Solver:
             # Set constants
             w = 7.848e-6
             K = 7.848e-6
-            h0 = 8e3
+            # h0 = 8e3
+            h0 = 1.5e5
             R = 4.0
 
             # Compute initial fluid height
@@ -329,8 +325,8 @@ class Solver:
                     + (self.a**2.0) * C * np.cos(2.0 * R * self.phi)
                 )
                 / self.g_torus_r
-                + h0 / 5e4 * h_equilibrium
-                + 300
+                # + h0 * h_equilibrium
+                # + h0
             )
 
             # Compute initial wind
@@ -364,7 +360,8 @@ class Solver:
 
             # Set constants
             u0 = 2.0 * math.pi * self.a / (12.0 * 24.0 * 3600.0)
-            h0 = 2.94e4 / self.g_torus_r
+            # h0 = 2.94e4 / self.g_torus_r
+            h0 = 1.5e5
 
             # Make Coriolis parameter dependent on longitude and latitude
             self.f = (
@@ -388,8 +385,8 @@ class Solver:
                     ** 2.0
                 )
                 / self.g_torus_r
-                + h0 / 5e4 * h_equilibrium
-                + 300
+                # + h0 * h_equilibrium
+                # + h0
             )
 
             # Compute initial wind
@@ -419,18 +416,17 @@ class Solver:
             )
         # ---- IC 2 stationary test case --- #
         # ---- for an artificial xy-periodic field  --- #
-        elif self.IC == 2:
-            h = 2e5 * np.ones_like(self.phi) 
-            #h0 = 5e4
-            #h = h0 * np.ones_like(self.phi) + h0 / 5e4 * h_equilibrium + 300
+        elif self.IC == 2: 
+            h0 = 1.5e5
+            h = h0 * np.ones_like(self.phi) #+ h0 * h_equilibrium + h0
             u = 10 * np.ones_like(self.phi)
             v = np.zeros_like(self.phi)
             
         # ---- IC 3 stationary test case --- #
         # ---- like ic 2 but with added noise  --- #
         elif self.IC == 3:
-            h0 = 5e4
-            h = h0 * np.ones_like(self.phi) + h0 / 5e4 * h_equilibrium + 300
+            h0 = 1.5e5
+            h = h0 * np.ones_like(self.phi) #+ h0 * h_equilibrium + h0
             u = 10 * np.ones_like(self.phi)
             v = np.zeros_like(self.phi)
 
