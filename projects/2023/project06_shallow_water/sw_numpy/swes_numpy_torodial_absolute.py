@@ -245,7 +245,7 @@ class Solver:
 
         # torus
         option="2"
-        self.aspect_ratio = 0.01 # set to desired value if using option 2
+        self.aspect_ratio = 0.1 # set to desired value if using option 2
         if option=="1":
             self.r_major = self.a
             self.r_minor = np.sqrt(2.0 / 3.0 / np.pi) * self.a
@@ -297,7 +297,8 @@ class Solver:
             # Set constants
             w = 7.848e-6
             K = 7.848e-6
-            h0 = 8e3
+            # h0 = 8e3
+            h0 = 5e5
             R = 4.0
 
             # Compute initial fluid height
@@ -367,7 +368,8 @@ class Solver:
 
             # Set constants
             u0 = 2.0 * math.pi * self.a / (12.0 * 24.0 * 3600.0)
-            h0 = 2.94e4 / self.g_torus_r
+            # h0 = 2.94e4 / self.g_torus_r
+            h0 = 5e5
 
             # Make Coriolis parameter dependent on longitude and latitude
             self.f = (
@@ -423,14 +425,14 @@ class Solver:
         # ---- IC 2 stationary test case --- #
         # ---- for an artificial xy-periodic field  --- #
         elif self.IC == 2:
-            h = (1e5 - 1e4*np.cos(self.theta1D))* np.ones_like(self.phi) 
+            h = (5e5 - 1e4*np.cos(self.theta1D))* np.ones_like(self.phi) 
             u = 10 * np.ones_like(self.phi)
             v = np.zeros_like(self.phi)
             
         # ---- IC 3 stationary test case --- #
         # ---- like ic 2 but with added noise  --- #
         elif self.IC == 3:
-            h0 = 5e4
+            h0 = 5e5
             h = h0 * np.ones_like(self.phi) + h0 / 5e4 * h_equilibrium + 300
             u = 10 * np.ones_like(self.phi)
             v = np.zeros_like(self.phi)
