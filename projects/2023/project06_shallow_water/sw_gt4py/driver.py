@@ -49,7 +49,6 @@ def driver(
         if (version == 'numpy'):
             import swes_numpy_toroidal as SWES
         elif (version == 'gt4py'):
-            print('Not implemented.')
             import swes_gt4py_toroidal as SWES
 
     # Solver version:
@@ -130,7 +129,7 @@ if __name__ == '__main__':
     
     driver(
         TEST=True,
-        PLOT=False,
+        PLOT=True,
         make_gif = False,
         version = 'gt4py', # 'gt4py', # 
         backend = 'numpy', # 'numpy', # 'gt:cpu_ifirst' # "gt:cpu_kfirst" # "gt:gpu" #
