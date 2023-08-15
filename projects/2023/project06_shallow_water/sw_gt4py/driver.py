@@ -9,16 +9,14 @@ import pickle
 import math
 import numpy as np
 
-from animation import make_animation
-
 def driver(
     TEST=False,
     PLOT=True,
     make_gif=False,
     version = 'gt4py', # 'numpy' # 
-    backend = 'conda', # 'numpy' # 'gt:cpu_ifirst' # "gt:cpu_kfirst" # "gt:gpu" #
+    backend = 'cuda', # 'numpy' # 'gt:cpu_ifirst' # "gt:cpu_kfirst" # "gt:gpu" #
     geometry = 'sphere', # 'torus'
-    IC = 0, # 1
+    IC = 1, # 0,1
     T = 4,
     M = 181, # nx
     N = 90, # ny
@@ -41,11 +39,13 @@ def driver(
  
     # Import
     if (geometry == 'sphere'):
+        from animation import make_animation
         if (version == 'numpy'):
             import swes_numpy as SWES
         elif (version == 'gt4py'):
             import swes_gt4py as SWES
     elif (geometry == 'torus'):
+        from animation_toroidal import make_animation
         if (version == 'numpy'):
             import swes_numpy_toroidal as SWES
         elif (version == 'gt4py'):
@@ -61,7 +61,7 @@ def driver(
 
     # Simulation length (in days); better to use integer values.
     # Suggested simulation length for Williamson's test cases:
-    T = 0.25 if TEST else T
+    T = 0.5 if TEST else T
 
     # CFL number
     CFL = 0.5
@@ -110,12 +110,12 @@ def driver(
             print('[animation.py] Plotting h...')
             make_animation(baseName, what_to_plot='h',make_gif=make_gif)
             print('[animation.py] Plotting u...')
-            make_animation(baseName, what_to_plot='u',make_gif=make_gif)
+            make_animation(baseName, what_to_plot='u',make_gif=False)
             print('[animation.py] Plotting v...')
-            make_animation(baseName, what_to_plot='v',make_gif=make_gif)
+            make_animation(baseName, what_to_plot='v',make_gif=False)
             print('[animation.py] Done.')
         
-    print(f'\n[driver.py] Starting SWES simulation')
+    print(f'\n[driver.py] Finished SWES simulation')
     print(f'in {version} version')
     if version=='gt4py':
         print(f'with {backend} backend')
@@ -130,9 +130,9 @@ if __name__ == '__main__':
     driver(
         TEST=True,
         PLOT=True,
-        make_gif = False,
+        make_gif = True,
         version = 'gt4py', # 'gt4py', # 
-        backend = 'numpy', # 'numpy', # 'gt:cpu_ifirst' # "gt:cpu_kfirst" # "gt:gpu" #
+        backend = 'cuda', # 'numpy', # 'gt:cpu_ifirst' # "gt:cpu_kfirst" # "gt:gpu" #
         geometry = 'torus', # 'sphere', # 
         IC = 1, # 1
         T = 4,

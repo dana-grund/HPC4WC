@@ -46,9 +46,9 @@ def make_animation(
     #	* mp4 # not implemented
     #	* mpg # not implemented
     # and the frames per seconds
-    save_movie = True
-    movie_format = 'gif'
-    fps = 1
+    # save_movie = True
+    # movie_format = 'gif'
+    fps = 3
 
 
     # --- LOAD DATA --- #
@@ -113,7 +113,7 @@ def make_animation(
 
     if make_gif:
         ani = animation.FuncAnimation(fig=fig1, func=update, frames=Nt, interval=1)
-        ani.save(filename=baseName+"_"+what_to_plot+".gif", writer="pillow")
+        ani.save(filename=baseName+"_"+what_to_plot+".gif", writer="pillow", fps=fps)
     
     if make_pngs:
         update(0)
@@ -138,10 +138,10 @@ if __name__ == '__main__':
     
     print('[animation.py] Plotting h...')
     make_animation(baseName, what_to_plot='h',make_gif=make_gif)
-    print('[animation.py] Plotting u...')
-    make_animation(baseName, what_to_plot='u',make_gif=make_gif)
-    print('[animation.py] Plotting v...')
-    make_animation(baseName, what_to_plot='v',make_gif=make_gif)
+    # print('[animation.py] Plotting u...')
+    # make_animation(baseName, what_to_plot='u',make_gif=make_gif)
+    # print('[animation.py] Plotting v...')
+    # make_animation(baseName, what_to_plot='v',make_gif=make_gif)
     print('[animation.py] Done.')
     
     # --- TO DO: add settings as keywords with defaults and/or line arguments --- #

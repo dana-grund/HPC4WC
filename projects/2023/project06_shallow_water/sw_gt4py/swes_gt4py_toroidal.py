@@ -885,4 +885,4 @@ class Solver:
         if save > 0:
             return wall_time, tsave, self.phi, self.theta, hsave, usave, vsave
         else:
-            r
+            r                                                                             
