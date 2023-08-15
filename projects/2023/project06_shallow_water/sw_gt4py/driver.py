@@ -132,8 +132,8 @@ if __name__ == '__main__':
         TEST=True,
         PLOT=False,
         make_gif = False,
-        version = 'numpy', # 'gt4py', # 
-        backend = '', # 'numpy', # 'gt:cpu_ifirst' # "gt:cpu_kfirst" # "gt:gpu" #
+        version = 'gt4py', # 'gt4py', # 
+        backend = 'numpy', # 'numpy', # 'gt:cpu_ifirst' # "gt:cpu_kfirst" # "gt:gpu" #
         geometry = 'torus', # 'sphere', # 
         IC = 1, # 1
         T = 4,
