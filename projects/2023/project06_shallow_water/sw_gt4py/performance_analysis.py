@@ -58,10 +58,40 @@ def plot_n_time(wall_times_by_vb, name='', title=''):
     plt.tight_layout()
     plt.savefig(f'{folder}performance_{name}.png')
 
+# --- WARM UP CACHES --- #
+### TEST !!! ###
+print('\nWarming up caches...\n')
+_ = driver(
+    TEST=True,
+    PLOT=False,
+    version = 'numpy',
+    backend = '',
+    geometry = 'sphere',
+    IC = IC,
+    M = nxs[-1],
+    N = ny[-1],
+    verbose = 1e10,
+    save = 1e10,
+)
+_ = driver(
+    TEST=True,
+    PLOT=False,
+    version = 'gt4py',
+    backend = 'cuda',
+    geometry = 'sphere',
+    IC = IC,
+    M = nxs[-1],
+    N = ny[-1],
+    verbose = 1e10,
+    save = 1e10,
+)
+print('\nWarming up caches... Done.\n')
+
 # --- LOOP: SEPARATE TESTS --- #
 
 for geometry in geometries:
     for IC in ICs:
+        name = f'{geometry}_IC{IC}'
         
         # --- INNER LOOP: PLOTTED JOINTLY --- #
         
@@ -93,9 +123,14 @@ for geometry in geometries:
                 )
 
                 wall_times[vb].append(wall_time)
-
+        
+        # --- SAVE just in case --- #
+        ### TEST !!! ###
+        with open('performance_'+name+'.pckl', 'wb') as f:
+            pickle.dump(wall_times, f)
+        
         # --- PLOTTING --- #
-        name = f'{geometry}_IC{IC}'
+        ### add: plot from pickle without running ###
         plot_n_time(wall_times,name=name,title=name)
 
         
