@@ -3,6 +3,7 @@
 import sys
 import os
 import math
+import time
 import numpy as np
 from scipy.stats import norm
 import gt4py_functions as gf
@@ -91,18 +92,18 @@ class Solver:
         self.cMidy = (
             self.r_major
             + self.r_minor
-            * np.cos(0.5 * (self.theta[1:-1, 1:] + self.theta[1:-1, :-1]))
+            * np.cos(0.5 * (self.theta[:, 1:] + self.theta[:, :-1]))
         ) / (self.r_minor + self.r_major)
 
         # Compute $\sin(\theta)$
         self.sg = np.sin(self.theta[1:-1, 1:-1])
-        self.sgMidx = np.sin(0.5 * (self.theta[:-1, 1:-1] + self.theta[1:, 1:-1]))
-        self.sgMidy = np.sin(0.5 * (self.theta[1:-1, :-1] + self.theta[1:-1, 1:]))
+        self.sgMidx = np.sin(0.5 * (self.theta[:-1, :] + self.theta[1:, :]))
+        self.sgMidy = np.sin(0.5 * (self.theta[:, :-1] + self.theta[:, 1:]))
         
         # Compute $\cos(\theta)$
         self.cg = np.cos(self.theta[1:-1, 1:-1])
-        self.cgMidx = np.cos(0.5 * (self.theta[:-1, 1:-1] + self.theta[1:, 1:-1]))
-        self.cgMidy = np.cos(0.5 * (self.theta[1:-1, :-1] + self.theta[1:-1, 1:]))
+        self.cgMidx = np.cos(0.5 * (self.theta[:-1, :] + self.theta[1:, :]))
+        self.cgMidy = np.cos(0.5 * (self.theta[:, :-1] + self.theta[:, 1:]))
         
         ## Compute $\tan(\theta)$
         #self.tg = np.zeros_like(np.tan(self.theta[1:-1, 1:-1]))
@@ -667,7 +668,8 @@ class Solver:
 
         n = 0
         t = 0.0
-
+        wall_zero = time.time()
+        
         while t < self.T:
             # Update number of iterations
             n += 1
@@ -702,6 +704,8 @@ class Solver:
             # Compute timestep
             dtmax = np.minimum(self.dxmin / eigenx, self.dymin / eigeny)
             self.dt = self.CFL * dtmax
+            
+            self.dt = float(np.asarray(self.dt))
 
             # If needed, adjust timestep not to exceed final time
             if t + self.dt > self.T:
@@ -720,7 +724,8 @@ class Solver:
                 hu=self.hu,hv=self.hv,v1=self.v1,
                 origin=self.default_origin, domain=self.shape
             )
-            
+                       
+
             self.x_staggered(
                 u=self.u,v=self.v,h=self.h,
                 hu=self.hu,hv=self.hv,
@@ -828,21 +833,21 @@ class Solver:
             # --- Update solution applying BCs --- #
 
             self.h[:, 1:-1] = np.concatenate(
-                (hnew[-2:-1, :], hnew, hnew[1:2, :]), axis=0
+                (self.hnew[-2:-1, :], self.hnew, self.hnew[1:2, :]), axis=0
             )
             # --- TO-DO: change the boundary also to periodic ---
             self.h[:, 0] = self.h[:, -2]
             self.h[:, -1] = self.h[:, 1]
 
             self.u[:, 1:-1] = np.concatenate(
-                (unew[-2:-1, :], unew, unew[1:2, :]), axis=0
+                (self.unew[-2:-1, :], self.unew, self.unew[1:2, :]), axis=0
             )
             # --- TO-DO: change the boundary also to periodic ---
             self.u[:, 0] = self.u[:, -2]
             self.u[:, -1] = self.u[:, 1]
 
             self.v[:, 1:-1] = np.concatenate(
-                (vnew[-2:-1, :], vnew, vnew[1:2, :]), axis=0
+                (self.vnew[-2:-1, :], self.vnew, self.vnew[1:2, :]), axis=0
             )
             # --- TO-DO: change the boundary also to periodic ---
             self.v[:, 0] = self.v[:, -2]
@@ -852,20 +857,32 @@ class Solver:
             if verbose > 0 and (n % verbose == 0):
                 norm = np.sqrt(self.u * self.u + self.v * self.v)
                 umax = norm.max()
-                print(
-                    "Time = %6.2f hours (max %i); max(|u|) = %16.16f"
-                    % (t / 3600.0, int(self.T / 3600.0), umax)
-                )
+                wall_time = time.time() - wall_zero
+                print(f"\nIteration {n=}; {wall_time=:2.2f}s, saving = {n%save==0}")
+                print(f"Time = {t/3600:6.2f} hours (max {int(self.T / 3600.0)}); max(|u|) = {umax:6.4f}")
 
             if save > 0 and (n % save == 0):
                 tsave = np.concatenate((tsave, np.array([[t]])), axis=0)
                 hsave = np.concatenate((hsave, self.h[1:-1, :, np.newaxis]), axis=2)
                 usave = np.concatenate((usave, self.u[1:-1, :, np.newaxis]), axis=2)
                 vsave = np.concatenate((vsave, self.v[1:-1, :, np.newaxis]), axis=2)
-
+        
+        wall_time = time.time() - wall_zero
+        
+        # --- Back to numpy format --- #
+        
+        self.phi = np.asarray(self.phi)
+        self.theta = np.asarray(self.theta)
+        self.h = np.asarray(self.h)
+        self.u = np.asarray(self.u)
+        self.v = np.asarray(self.v)
+        hsave = np.asarray(hsave)
+        usave = np.asarray(usave)
+        vsave = np.asarray(vsave)
+        
         # --- Return --- #
 
         if save > 0:
-            return tsave, self.phi, self.theta, hsave, usave, vsave
+            return wall_time, tsave, self.phi, self.theta, hsave, usave, vsave
         else:
             return self.h, self.u, self.v
