@@ -25,7 +25,7 @@ def driver(
     diffusion = True, # nu = 5e5 (earth)
     verbose=500,
     save=500,
-    folder = "/data/", # GRIDTOOLS_ROOT = os.environ.get('GRIDTOOLS_ROOT')
+    folder = "data/", # GRIDTOOLS_ROOT = os.environ.get('GRIDTOOLS_ROOT')
 ):
     
     if version == 'numpy':
@@ -38,11 +38,7 @@ def driver(
     print(f'on the {geometry}.\n')
           
     # --- SETTINGS --- #
-
-    # Solver version:
-    #	* numpy (NumPy version)
-    #   * gt4py (DSL version)
-    
+ 
     # Import
     if (geometry == 'sphere'):
         if (version == 'numpy'):
@@ -51,12 +47,14 @@ def driver(
             import swes_gt4py as SWES
     elif (geometry == 'torus'):
         if (version == 'numpy'):
-            print('Not implemented.')
-            import swes_torus_numpy as SWES
+            import swes_numpy_toroidal as SWES
         elif (version == 'gt4py'):
             print('Not implemented.')
-            import swes_torus_gt4py as SWES
+            import swes_gt4py_toroidal as SWES
 
+    # Solver version:
+    #	* numpy (NumPy version)
+    #   * gt4py (DSL version)
 
     # Initial condition:
     #	* 0: sixth test case of Williamson's suite
@@ -92,7 +90,7 @@ def driver(
 
     if (save > 0):
         baseName = folder + 'swes-%s-%s-%s-%s-M%i-N%i-T%i-%i-' % (geometry, version, backend, str(IC), M, N, T, diffusion)
-
+        
         # Save h
         with open(baseName + 'h', 'wb') as f:
             pickle.dump([M, N, t, phi, theta, h], f, protocol = 2)
@@ -134,15 +132,15 @@ if __name__ == '__main__':
         TEST=True,
         PLOT=False,
         make_gif = False,
-        version = 'gt4py', # 'numpy' # 
-        backend = 'cuda', # 'numpy', # 'gt:cpu_ifirst' # "gt:cpu_kfirst" # "gt:gpu" #
-        geometry = 'sphere', # 'torus'
-        IC = 0, # 1
+        version = 'numpy', # 'gt4py', # 
+        backend = '', # 'numpy', # 'gt:cpu_ifirst' # "gt:cpu_kfirst" # "gt:gpu" #
+        geometry = 'torus', # 'sphere', # 
+        IC = 1, # 1
         T = 4,
         M = 180, # nx
         N = 90, # ny
         diffusion = True, # nu = 5e5 (earth)
         verbose=500,
         save=500,
-        folder = "/data/",
+        folder = "data/",
     )
