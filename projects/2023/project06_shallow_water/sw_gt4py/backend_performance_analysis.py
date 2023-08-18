@@ -17,8 +17,8 @@ from driver import driver
 
 # nxs = [ 90,180,360, 720]
 # nys = [180,360,720,1480]
-nxs = [ 180,360,360,720,720]
-nys = [ 90 ,90 ,180,180,360]
+nxs = [ 360,720,720,1440,1440]
+nys = [ 180,180,360,360,720]
 ns  = [
     nx*ny for nx,ny in zip(nxs,nys)
 ]
@@ -29,9 +29,10 @@ ICs = [1] # [0,1]
 
 # --- CODE VERSIONS --- #
 
-versions = ['gt4py', 'numpy']
-backends = ['numpy','cuda', 'gt:cpu_ifirst', 'gt:gpu'] # 'gt:cpu_ifirst' # "gt:cpu_kfirst" # "gt:gpu" # 'cuda', 
-version_backends = ['numpy']+['gt4py-'+b for b in backends] 
+versions = ['gt4py']#['gt4py', 'numpy']
+backends = ['cuda', 'gt:cpu_ifirst', 'gt:cpu_kfirst', 'gt:gpu'] # 'gt:cpu_ifirst' # "gt:cpu_kfirst" # "gt:gpu" # 'cuda', 
+version_backends = ['gt4py-'+b for b in backends] 
+#version_backends = ['numpy']+['gt4py-'+b for b in backends] 
 print(version_backends)
 
 # --- GEOMETRIES --- #

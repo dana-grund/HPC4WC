@@ -410,13 +410,13 @@ class Solver:
         self.a = 6.37122e6
         # A too-high angular velocity will generate centrifugal force
         # exceeding gravity -> flying to the outer space!
-        self.omega = 0.0 #7.292e-5 # set to zero for a non-rotating torus
+        self.omega = 4.87*7.292e-5 # set to zero for a non-rotating torus
         self.scaleHeight = 8.0e3
-        self.nu = 5.0e5
+        self.nu = 1.0e6
 
         # torus
         option="2"
-        self.aspect_ratio = 0.1 # set to desired value if using option 2
+        self.aspect_ratio = 0.2 # set to desired value if using option 2
         if option=="1":
             self.r_major = self.a
             self.r_minor = np.sqrt(2.0 / 3.0 / np.pi) * self.a
@@ -541,7 +541,7 @@ class Solver:
             # Set constants
             u0 = 2.0 * math.pi * self.a / (12.0 * 24.0 * 3600.0)
             # h0 = 2.94e4 / self.g_torus_r
-            h0 = 5e5
+            h0 = 2e5
 
             # Make Coriolis parameter dependent on longitude and latitude
             self.f = (
@@ -885,4 +885,4 @@ class Solver:
         if save > 0:
             return wall_time, tsave, self.phi, self.theta, hsave, usave, vsave
         else:
-            r                                                                             
+            return wall_time, self.h[:,:,0], self.u[:,:,0], self.v[:,:,0]
