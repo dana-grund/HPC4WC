@@ -1,4 +1,4 @@
-animation.py requires cartopy
+animation.py requires cartopy, so within the venv created in the course, 
 
 > pip install cartopy
 
