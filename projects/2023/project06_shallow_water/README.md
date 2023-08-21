@@ -9,7 +9,7 @@ This folder contains the used scripts in our project.
 **sw_gt4py**:  
 The main folder of interest. The code can be run with `driver.py`. 
 In this file, you can select if you want to run the code in numpy on a sphere (`swes_numpy.py`) or on a torus (`swes_numpy_toroidal.py`).
-You can also select that you want to run the code in gt4py on a sphere  (`swes_gt4oy.py`) or on a torus (`swes_gt4py_toroidal.py`).
+You can also select that you want to run the code in gt4py on a sphere  (`swes_gt4py.py`) or on a torus (`swes_gt4py_toroidal.py`).
 
 The gt4py functions can be found in `gt4py_functions.py`.
 For performance analysis, there are two files: `preformance_analysis.py` and `backend_preformance_analysis.py`.
